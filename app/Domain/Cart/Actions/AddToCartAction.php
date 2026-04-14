@@ -40,7 +40,6 @@ class AddToCartAction
             if ($existingItem !== null) {
                 $existingItem->update([
                     'quantity' => $requestedQuantity,
-                    'unit_price' => $product->price,
                 ]);
 
                 return $existingItem->fresh();

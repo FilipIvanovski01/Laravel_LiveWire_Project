@@ -21,13 +21,19 @@ class VendorFactory extends Factory
      */
     public function definition(): array
     {
-        $storeName = fake()->unique()->company();
+        $storePrefixes = ['Urban', 'North', 'Golden', 'Prime', 'Bright', 'Daily', 'Modern', 'Coastal', 'Summit', 'Craft'];
+        $storeNouns = ['Market', 'Goods', 'Boutique', 'Supply', 'Studio', 'Outlet', 'Essentials', 'Corner', 'Hub', 'Collective'];
+        $storeName = fake()->unique()->randomElement($storePrefixes).' '.fake()->randomElement($storeNouns);
 
         return [
             'user_id' => User::factory(),
             'store_name' => $storeName,
             'slug' => Str::slug($storeName).'-'.fake()->unique()->numberBetween(100, 999),
-            'description' => fake()->paragraph(),
+            'description' => fake()->randomElement([
+                'Curated everyday products with fast shipping and dependable quality.',
+                'Independent multi-category store focused on quality, value, and service.',
+                'Carefully selected lifestyle items for home, work, and personal use.',
+            ]),
             'is_active' => true,
         ];
     }

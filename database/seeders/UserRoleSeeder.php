@@ -14,6 +14,21 @@ class UserRoleSeeder extends Seeder
      */
     public function run(): void
     {
+        $storeNames = collect([
+            'Harbor Home',
+            'Northline Outfitters',
+            'Daily Utility',
+            'Blue Peak Market',
+            'Urban Nest Goods',
+            'Summit Tech Shop',
+            'Green Basket Co',
+            'Luna Living Store',
+            'Craft & Carry',
+            'Core Essentials Hub',
+            'Modern Pantry',
+            'Everfield Supply',
+        ]);
+
         $primaryUser = User::factory()->create([
             'name' => 'Primary User',
             'email' => 'primary@example.com',
@@ -27,7 +42,7 @@ class UserRoleSeeder extends Seeder
             ->get();
 
         foreach ($vendorUsers as $user) {
-            $storeName = fake()->unique()->company();
+            $storeName = $storeNames->pop() ?? fake()->unique()->company();
 
             Vendor::factory()->for($user)->create([
                 'store_name' => $storeName,

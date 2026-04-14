@@ -67,6 +67,7 @@ new #[Title('Marketplace')] class extends Component {
 
         try {
             $addToCartAction->execute(Auth::user(), $product, 1);
+            $this->dispatch('cart-updated');
             Flux::toast(variant: 'success', text: __('Product added to cart.'));
         } catch (ValidationException $exception) {
             Flux::toast(variant: 'danger', text: $exception->getMessage());
@@ -96,11 +97,11 @@ new #[Title('Marketplace')] class extends Component {
 
 <section class="w-full space-y-8">
     <div class="space-y-2">
-        <flux:heading size="xl">{{ __('Discover Products') }}</flux:heading>
-        <flux:text class="text-zinc-600 dark:text-zinc-300">{{ __('Browse products from trusted vendors and add them to your cart instantly.') }}</flux:text>
+        <flux:heading size="xl" class="text-[#212529]">{{ __('Discover Products') }}</flux:heading>
+        <flux:text class="text-[#6C757D]">{{ __('Browse curated products from trusted vendors and add them instantly.') }}</flux:text>
     </div>
 
-    <div class="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-zinc-900 md:grid-cols-4">
+    <div class="grid gap-4 rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm md:grid-cols-4">
         <flux:input wire:model.live.debounce.400ms="search" :label="__('Search')" :placeholder="__('Search by product name')" />
 
         <flux:select wire:model.live="vendor_id" :label="__('Vendor')">
@@ -116,27 +117,51 @@ new #[Title('Marketplace')] class extends Component {
     </div>
 
     @if ($this->products->isEmpty())
-        <div class="rounded-xl border border-dashed border-neutral-300 p-8 text-center dark:border-neutral-700">
-            <flux:text>{{ __('No products match your filters.') }}</flux:text>
+        <div class="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-10 text-center">
+            <flux:text class="text-[#6C757D]">{{ __('No products match your filters.') }}</flux:text>
         </div>
     @else
-        <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             @foreach ($this->products as $product)
-                <article wire:key="product-{{ $product->id }}" class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-neutral-700 dark:bg-zinc-900">
-                    <div class="mb-2">
-                        <flux:heading size="md">{{ $product->name }}</flux:heading>
-                        <flux:text class="text-sm text-zinc-500 dark:text-zinc-400">{{ $product->vendor->store_name }}</flux:text>
+                <article wire:key="product-{{ $product->id }}" class="overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="aspect-4/3 w-full bg-[#F8F9FA]">
+                        <img
+                            src="{{ $product->image_url_for_display }}"
+                            onerror="this.onerror=null;this.src='https://placehold.co/640x480/F8F9FA/6C757D?text=No+Image';"
+                            class="h-full w-full object-cover"
+                            loading="lazy"
+                        />
                     </div>
-                    <flux:text class="line-clamp-2">{{ $product->description }}</flux:text>
-                    <div class="mt-4 flex items-center justify-between">
-                        <flux:text class="text-lg font-bold text-indigo-600 dark:text-indigo-400">${{ number_format((float) $product->price, 2) }}</flux:text>
-                        <div class="flex gap-2">
-                            <flux:button size="sm" :href="route('market.products.show', $product)" wire:navigate>
+                    <div class="space-y-3 p-4">
+                        <div>
+                            <flux:heading size="sm" class="text-[#212529]">{{ $product->name }}</flux:heading>
+                            <flux:text class="text-sm text-[#6C757D]">{{ $product->vendor->store_name }}</flux:text>
+                        </div>
+                        <flux:text class="line-clamp-2 text-sm text-[#6C757D]">{{ $product->description }}</flux:text>
+                        <div class="flex items-center justify-between">
+                            <flux:text class="text-base font-semibold text-[#007BFF]">${{ number_format((float) $product->price, 2) }}</flux:text>
+                            <flux:badge color="{{ $product->stock_quantity > 0 ? 'emerald' : 'red' }}">
+                                {{ $product->stock_quantity > 0 ? __('In stock') : __('Out of stock') }}
+                            </flux:badge>
+                        </div>
+                        <div class="grid w-full grid-cols-2 gap-2">
+                            <flux:button
+                                size="sm"
+                                class="justify-center border border-[#E5E7EB] bg-white text-[#212529] hover:bg-[#F8F9FA] focus:ring-2 focus:ring-[#007BFF]"
+                                :href="route('market.products.show', $product)"
+                                wire:navigate
+                            >
                                 {{ __('View') }}
                             </flux:button>
                             @auth
-                                <flux:button size="sm" variant="primary" wire:click="addToCart('{{ $product->id }}')">
-                                    {{ __('Add') }}
+                                <flux:button
+                                    size="sm"
+                                    variant="primary"
+                                    class="justify-center bg-[#007BFF] hover:bg-[#0069d9] focus:ring-2 focus:ring-[#007BFF]"
+                                    wire:click="addToCart('{{ $product->id }}')"
+                                    wire:loading.attr="disabled"
+                                >
+                                    {{ __('Add to cart') }}
                                 </flux:button>
                             @endauth
                         </div>
