@@ -25,7 +25,6 @@ class UpdateCartItemQuantityAction
 
         $cartItem->update([
             'quantity' => $quantity,
-            'unit_price' => $product->price,
         ]);
 
         return $cartItem->fresh();

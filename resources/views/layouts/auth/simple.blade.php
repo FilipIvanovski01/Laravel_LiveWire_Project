@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
-        <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-            <div class="flex w-full max-w-sm flex-col gap-2">
-                <a href="{{ route('home') }}" class="flex flex-col items-center gap-2 font-medium" wire:navigate>
-                    <span class="flex h-9 w-9 mb-1 items-center justify-center rounded-md">
-                        <x-app-logo-icon class="size-9 fill-current text-black dark:text-white" />
+    <body class="min-h-screen bg-gray-50 antialiased">
+        <div class="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6">
+            <div class="mx-auto w-full max-w-md space-y-5">
+                <a href="{{ route('home') }}" class="flex items-center justify-center gap-3 font-medium" wire:navigate>
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#007BFF] text-white shadow-sm">
+                        <flux:icon name="shopping-bag" class="h-5 w-5" />
                     </span>
-                    <span class="sr-only">{{ config('app.name', 'Laravel') }}</span>
+                    <span class="text-lg font-semibold text-[#212529]">MiniCommerce</span>
                 </a>
-                <div class="flex flex-col gap-6">
+
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
                     {{ $slot }}
                 </div>
             </div>

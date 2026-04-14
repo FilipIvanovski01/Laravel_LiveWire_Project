@@ -27,7 +27,7 @@ class CreateOrderAction
                     'quantity' => $item->quantity,
                     'unit_price' => $item->unitPrice,
                     'line_total' => $item->lineTotal,
-                    'status' => OrderStatus::Paid,
+                    'status' => $order->status,
                 ],
                 $data->items,
             ),

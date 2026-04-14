@@ -8,6 +8,7 @@ use App\Domain\OrderManagement\DTOs\CreateOrderDTO;
 use App\Domain\OrderManagement\DTOs\CreateOrderItemDTO;
 use App\Domain\OrderManagement\Enums\PaymentMethod;
 use App\Domain\OrderManagement\Models\Order;
+use App\Domain\ProductCatalog\Enums\ProductStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -39,7 +40,7 @@ class CheckoutService
         foreach ($cart->items as $cartItem) {
             $product = $cartItem->product;
 
-            if ($product === null || $product->vendor === null || ! $product->vendor->is_active || $product->status !== 'active') {
+            if ($product === null || $product->vendor === null || ! $product->vendor->is_active || $product->status !== ProductStatus::Active) {
                 throw ValidationException::withMessages([
                     'checkout' => __('One or more products are no longer available.'),
                 ]);

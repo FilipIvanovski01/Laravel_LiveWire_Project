@@ -8,6 +8,7 @@ use App\Domain\ProductCatalog\Models\Product;
 use App\Domain\ProductCatalog\Models\Vendor;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -26,7 +27,7 @@ class VendorCatalogTest extends TestCase
             ->set('description', 'A valid description for this product.')
             ->set('price', '19.99')
             ->set('stock_quantity', '12')
-            ->set('image_url', 'https://example.com/product.jpg')
+            ->set('image', UploadedFile::fake()->image('product.jpg'))
             ->set('status', 'active')
             ->call('save');
 
@@ -105,5 +106,30 @@ class VendorCatalogTest extends TestCase
         $response->assertOk();
         $response->assertSee('Visible Listing');
         $response->assertDontSee('Hidden Listing');
+    }
+
+    public function test_product_created_via_vendor_flow_is_visible_on_marketplace_and_storefront_when_active(): void
+    {
+        $vendorUser = User::factory()->create();
+        $vendor = Vendor::factory()->for($vendorUser)->create(['slug' => 'shopdelajoe', 'is_active' => true]);
+
+        Livewire::actingAs($vendorUser)
+            ->test('pages::vendor.products.create')
+            ->set('name', 'Shop De La Joe Mug')
+            ->set('description', 'Ceramic mug for daily coffee.')
+            ->set('price', '14.99')
+            ->set('stock_quantity', '10')
+            ->set('image', UploadedFile::fake()->image('mug.jpg'))
+            ->set('status', 'active')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $marketResponse = $this->get(route('home'));
+        $marketResponse->assertOk();
+        $marketResponse->assertSee('Shop De La Joe Mug');
+
+        $storefrontResponse = $this->get(route('vendors.show', ['vendor' => 'shopdelajoe']));
+        $storefrontResponse->assertOk();
+        $storefrontResponse->assertSee('Shop De La Joe Mug');
     }
 }

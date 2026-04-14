@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Domain\OrderManagement\Models\Order;
 use App\Domain\OrderManagement\Models\OrderItem;
+use App\Domain\ProductCatalog\Enums\ProductStatus;
 use App\Domain\ProductCatalog\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -16,7 +17,7 @@ class OrderSeeder extends Seeder
     public function run(): void
     {
         $products = Product::query()
-            ->where('status', 'active')
+            ->where('status', ProductStatus::Active)
             ->where('stock_quantity', '>', 0)
             ->get();
 

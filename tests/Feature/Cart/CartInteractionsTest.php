@@ -57,7 +57,7 @@ class CartInteractionsTest extends TestCase
         Livewire::actingAs($user)
             ->test('pages::cart.index')
             ->set("quantities.{$item->id}", 4)
-            ->call('updateItemQuantity', $item->id)
+            ->call('blurQuantity', $item->id)
             ->assertHasErrors(["quantities.{$item->id}"]);
 
         $this->assertSame(2, $item->fresh()->quantity);
@@ -80,6 +80,20 @@ class CartInteractionsTest extends TestCase
         $this->assertDatabaseMissing('cart_items', [
             'id' => $item->id,
         ]);
+    }
+
+    public function test_user_cannot_add_product_with_zero_stock(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()
+            ->for(Vendor::factory()->create(['is_active' => true]))
+            ->create(['status' => 'active', 'stock_quantity' => 0]);
+
+        Livewire::actingAs($user)
+            ->test('pages::cart.index')
+            ->call('addProduct', $product->id);
+
+        $this->assertDatabaseCount('cart_items', 0);
     }
 
     public function test_cart_page_shows_vendor_grouping_subtotals_and_total(): void
