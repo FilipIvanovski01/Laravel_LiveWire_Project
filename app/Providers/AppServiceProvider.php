@@ -2,7 +2,12 @@
 
 namespace App\Providers;
 
+use App\Domain\OrderManagement\Models\OrderItem;
+use App\Domain\OrderManagement\Policies\OrderItemPolicy;
+use App\Domain\ProductCatalog\Models\Product;
+use App\Domain\ProductCatalog\Policies\ProductPolicy;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->registerPolicies();
     }
 
     /**
@@ -46,5 +52,11 @@ class AppServiceProvider extends ServiceProvider
                 ->uncompromised()
             : null,
         );
+    }
+
+    protected function registerPolicies(): void
+    {
+        Gate::policy(Product::class, ProductPolicy::class);
+        Gate::policy(OrderItem::class, OrderItemPolicy::class);
     }
 }

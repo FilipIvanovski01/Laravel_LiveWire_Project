@@ -42,8 +42,12 @@ class Product extends Model
         return $query->where('status', 'active');
     }
 
-    public function scopeForVendor(Builder $query, string $vendorId): Builder
+    public function scopeForVendor(Builder $query, ?string $vendorId): Builder
     {
+        if (! filled($vendorId)) {
+            return $query;
+        }
+
         return $query->where('vendor_id', $vendorId);
     }
 
@@ -56,10 +60,33 @@ class Product extends Model
         $search = trim($term);
 
         return $query->where(function (Builder $builder) use ($search): void {
-            $builder
-                ->where('name', 'like', '%'.$search.'%')
-                ->orWhere('description', 'like', '%'.$search.'%');
+            $builder->where('name', 'like', '%'.$search.'%');
         });
+    }
+
+    public function scopeMinPrice(Builder $query, ?float $minPrice): Builder
+    {
+        if ($minPrice === null) {
+            return $query;
+        }
+
+        return $query->where('price', '>=', $minPrice);
+    }
+
+    public function scopeMaxPrice(Builder $query, ?float $maxPrice): Builder
+    {
+        if ($maxPrice === null) {
+            return $query;
+        }
+
+        return $query->where('price', '<=', $maxPrice);
+    }
+
+    public function scopeMarketplaceVisible(Builder $query): Builder
+    {
+        return $query
+            ->active()
+            ->whereHas('vendor', fn (Builder $vendorQuery): Builder => $vendorQuery->where('is_active', true));
     }
 
     protected static function newFactory(): ProductFactory
