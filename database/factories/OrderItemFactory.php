@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Domain\OrderManagement\Enums\OrderStatus;
 use App\Domain\OrderManagement\Models\Order;
 use App\Domain\OrderManagement\Models\OrderItem;
 use App\Domain\ProductCatalog\Models\Product;
@@ -33,6 +34,11 @@ class OrderItemFactory extends Factory
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
             'line_total' => round($unitPrice * $quantity, 2),
+            'status' => fake()->randomElement([
+                OrderStatus::Paid,
+                OrderStatus::Shipped,
+                OrderStatus::Delivered,
+            ]),
         ];
     }
 }

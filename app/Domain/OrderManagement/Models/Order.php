@@ -2,6 +2,8 @@
 
 namespace App\Domain\OrderManagement\Models;
 
+use App\Domain\OrderManagement\Enums\OrderStatus;
+use App\Domain\OrderManagement\Enums\PaymentMethod;
 use App\Models\User;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -27,6 +29,8 @@ class Order extends Model
     protected function casts(): array
     {
         return [
+            'status' => OrderStatus::class,
+            'payment_method' => PaymentMethod::class,
             'total_amount' => 'decimal:2',
             'paid_at' => 'datetime',
         ];
