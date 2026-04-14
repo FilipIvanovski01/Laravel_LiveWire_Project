@@ -2,6 +2,7 @@
 
 namespace App\Domain\OrderManagement\Models;
 
+use App\Domain\OrderManagement\Enums\OrderStatus;
 use App\Domain\ProductCatalog\Models\Product;
 use App\Domain\ProductCatalog\Models\Vendor;
 use Database\Factories\OrderItemFactory;
@@ -9,11 +10,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderItem extends Model
 {
     /** @use HasFactory<OrderItemFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, SoftDeletes;
 
     protected $fillable = [
         'order_id',
@@ -23,6 +25,7 @@ class OrderItem extends Model
         'quantity',
         'unit_price',
         'line_total',
+        'status',
     ];
 
     protected function casts(): array
@@ -30,6 +33,7 @@ class OrderItem extends Model
         return [
             'unit_price' => 'decimal:2',
             'line_total' => 'decimal:2',
+            'status' => OrderStatus::class,
         ];
     }
 

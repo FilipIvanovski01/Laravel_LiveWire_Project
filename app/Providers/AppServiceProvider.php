@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Domain\OrderManagement\Models\OrderItem;
+use App\Domain\OrderManagement\Models\Order;
 use App\Domain\OrderManagement\Policies\OrderItemPolicy;
+use App\Domain\OrderManagement\Policies\OrderPolicy;
 use App\Domain\ProductCatalog\Models\Product;
 use App\Domain\ProductCatalog\Policies\ProductPolicy;
 use Carbon\CarbonImmutable;
@@ -57,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
     protected function registerPolicies(): void
     {
         Gate::policy(Product::class, ProductPolicy::class);
+        Gate::policy(Order::class, OrderPolicy::class);
         Gate::policy(OrderItem::class, OrderItemPolicy::class);
     }
 }

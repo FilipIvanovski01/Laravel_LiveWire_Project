@@ -1,9 +1,13 @@
 <?php
 
+use App\Domain\Cart\Actions\AddToCartAction;
 use App\Domain\ProductCatalog\Models\Vendor;
 use App\Domain\ProductCatalog\Services\MarketplaceSearchService;
+use Flux\Flux;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -47,6 +51,28 @@ new #[Title('Marketplace')] class extends Component {
         $this->resetPage();
     }
 
+    public function addToCart(string $productId, AddToCartAction $addToCartAction): void
+    {
+        if (! Auth::check()) {
+            $this->redirect(route('login'), navigate: true);
+
+            return;
+        }
+
+        $product = $this->products->getCollection()->firstWhere('id', $productId);
+
+        if ($product === null) {
+            return;
+        }
+
+        try {
+            $addToCartAction->execute(Auth::user(), $product, 1);
+            Flux::toast(variant: 'success', text: __('Product added to cart.'));
+        } catch (ValidationException $exception) {
+            Flux::toast(variant: 'danger', text: $exception->getMessage());
+        }
+    }
+
     #[Computed]
     public function vendors(): Collection
     {
@@ -68,13 +94,13 @@ new #[Title('Marketplace')] class extends Component {
     }
 }; ?>
 
-<section class="w-full space-y-6">
+<section class="w-full space-y-8">
     <div class="space-y-2">
-        <flux:heading size="xl">{{ __('Marketplace') }}</flux:heading>
-        <flux:text>{{ __('Browse products from all active vendors.') }}</flux:text>
+        <flux:heading size="xl">{{ __('Discover Products') }}</flux:heading>
+        <flux:text class="text-zinc-600 dark:text-zinc-300">{{ __('Browse products from trusted vendors and add them to your cart instantly.') }}</flux:text>
     </div>
 
-    <div class="grid gap-4 rounded-xl border border-neutral-200 p-4 dark:border-neutral-700 md:grid-cols-4">
+    <div class="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-zinc-900 md:grid-cols-4">
         <flux:input wire:model.live.debounce.400ms="search" :label="__('Search')" :placeholder="__('Search by product name')" />
 
         <flux:select wire:model.live="vendor_id" :label="__('Vendor')">
@@ -94,19 +120,26 @@ new #[Title('Marketplace')] class extends Component {
             <flux:text>{{ __('No products match your filters.') }}</flux:text>
         </div>
     @else
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             @foreach ($this->products as $product)
-                <article wire:key="product-{{ $product->id }}" class="rounded-xl border border-neutral-200 p-4 dark:border-neutral-700">
+                <article wire:key="product-{{ $product->id }}" class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-neutral-700 dark:bg-zinc-900">
                     <div class="mb-2">
                         <flux:heading size="md">{{ $product->name }}</flux:heading>
-                        <flux:text class="text-sm">{{ $product->vendor->store_name }}</flux:text>
+                        <flux:text class="text-sm text-zinc-500 dark:text-zinc-400">{{ $product->vendor->store_name }}</flux:text>
                     </div>
                     <flux:text class="line-clamp-2">{{ $product->description }}</flux:text>
                     <div class="mt-4 flex items-center justify-between">
-                        <flux:text class="font-semibold">${{ number_format((float) $product->price, 2) }}</flux:text>
-                        <flux:button size="sm" :href="route('market.products.show', $product)" wire:navigate>
-                            {{ __('View') }}
-                        </flux:button>
+                        <flux:text class="text-lg font-bold text-indigo-600 dark:text-indigo-400">${{ number_format((float) $product->price, 2) }}</flux:text>
+                        <div class="flex gap-2">
+                            <flux:button size="sm" :href="route('market.products.show', $product)" wire:navigate>
+                                {{ __('View') }}
+                            </flux:button>
+                            @auth
+                                <flux:button size="sm" variant="primary" wire:click="addToCart('{{ $product->id }}')">
+                                    {{ __('Add') }}
+                                </flux:button>
+                            @endauth
+                        </div>
                     </div>
                 </article>
             @endforeach
