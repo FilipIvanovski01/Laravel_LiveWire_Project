@@ -36,27 +36,25 @@ new #[Title('Become a vendor')] class extends Component {
         Flux::toast(variant: 'success', text: __('Your vendor profile is ready.'));
         $this->redirectIntended(default: route('vendor.products.index', absolute: false), navigate: true);
     }
-}; ?>
-
-<x-layouts::app :title="__('Become a Vendor')">
-    <div class="mx-auto w-full max-w-2xl">
-        <div class="mb-6">
-            <flux:heading size="xl">{{ __('Create your vendor profile') }}</flux:heading>
-            <flux:text class="mt-2">
-                {{ __('Once created, you can access product management and vendor order pages.') }}
-            </flux:text>
-        </div>
-
-        <form wire:submit="createVendorProfile" class="space-y-6 rounded-xl border border-neutral-200 p-6 dark:border-neutral-700">
-            <flux:input wire:model="store_name" :label="__('Store name')" required />
-
-            <flux:textarea wire:model="description" :label="__('Store description')" rows="4" />
-
-            <div class="flex justify-end">
-                <flux:button variant="primary" type="submit">
-                    {{ __('Create vendor profile') }}
-                </flux:button>
-            </div>
-        </form>
+}; 
+?>
+<section class="mx-auto w-full max-w-2xl">
+    <div class="mb-6">
+        <flux:heading size="xl">{{ __('Create your vendor profile') }}</flux:heading>
+        <flux:text class="mt-2">
+            {{ __('Once created, you can access product management and vendor order pages.') }}
+        </flux:text>
     </div>
-</x-layouts::app>
+
+    <form wire:submit="createVendorProfile" class="space-y-6 rounded-xl border border-neutral-200 p-6 dark:border-neutral-700">
+        <flux:input wire:model="store_name" :label="__('Store name')" required />
+
+        <flux:textarea wire:model="description" :label="__('Store description')" rows="4" />
+
+        <div class="flex justify-end">
+            <flux:button variant="primary" type="submit">
+                {{ __('Create vendor profile') }}
+            </flux:button>
+        </div>
+    </form>
+</section>

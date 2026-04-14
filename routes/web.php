@@ -2,35 +2,36 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+Route::livewire('/', 'pages::market.index')->name('home');
+Route::livewire('/products/{product}', 'pages::market.show')
+    ->whereUlid('product')
+    ->name('market.products.show');
+Route::redirect('/dashboard', '/')->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
-
-    // Buyer routes: any authenticated user is a buyer.
+Route::middleware(['auth'])->group(function () {
+    Route::livewire('/profile', 'pages::profile')->name('profile.edit');
     Route::prefix('cart')->name('cart.')->group(function () {
-        Route::view('/', 'pages.cart.index')->name('index');
+        Route::livewire('/', 'pages::cart.index')->name('index');
     });
 
     Route::prefix('checkout')->name('checkout.')->group(function () {
-        Route::view('/', 'pages.checkout.index')->name('index');
+        Route::livewire('/', 'pages::checkout.index')->name('index');
     });
 
     Route::prefix('buyer/orders')->name('buyer.orders.')->group(function () {
-        Route::view('/', 'pages.buyer.orders.index')->name('index');
-        Route::view('/{order}', 'pages.buyer.orders.show')->name('show');
+        Route::livewire('/', 'pages::buyer.orders.index')->name('index');
     });
 
     Route::livewire('vendor/onboarding', 'pages::vendor.onboarding')->name('vendor.onboarding');
 });
 
-Route::middleware(['auth', 'verified', 'vendor'])->prefix('vendor')->name('vendor.')->group(function () {
+Route::middleware(['auth', 'vendor'])->prefix('vendor')->name('vendor.')->group(function () {
     Route::prefix('products')->name('products.')->group(function () {
-        Route::view('/', 'pages.vendor.products.index')->name('index');
+        Route::livewire('/', 'pages::vendor.products.index')->name('index');
     });
 
     Route::prefix('orders')->name('orders.')->group(function () {
-        Route::view('/', 'pages.vendor.orders.index')->name('index');
+        Route::livewire('/', 'pages::vendor.orders.index')->name('index');
     });
 });
 
